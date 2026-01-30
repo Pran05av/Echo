@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Echo 🌱</title>
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #e8f0ec, #f7faf9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .chat {
+            background: white;
+            width: 420px;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        h3 {
+            margin-top: 0;
+            text-align: center;
+            color: #4b6b63;
+            font-weight: 500;
+        }
+
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .user {
+            text-align: right;
+            margin: 8px 0;
+            color: #2f3e3a;
+        }
+
+        .bot {
+            text-align: left;
+            margin: 8px 0;
+            color: #556f68;
+        }
+
+        input {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #cfded9;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: #7aa89c;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #6b9a8d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat">
+    <h3>Echo 🌱</h3>
+    <div id="messages"></div>
+    <input id="input" placeholder="You can take your time…" />
+    <button onclick="send()">Send</button>
+</div>
+
+<script>
+const sessionId = localStorage.getItem("echo_session") || crypto.randomUUID();
+localStorage.setItem("echo_session", sessionId);
+
+async function send() {
+    const input = document.getElementById("input");
+    const messages = document.getElementById("messages");
+
+    const text = input.value.trim();
+    if (!text) return;
+
+    messages.innerHTML += `<div class="user"><strong>You:</strong> ${text}</div>`;
+    input.value = "";
+
+    const response = await fetch("/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            session_id: sessionId,
+            text: text
+        })
+    });
+
+    const data = await response.json();
+    messages.innerHTML += `<div class="bot"><strong>Echo:</strong> ${data.reply}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+}
+</script>
+
+</body>
+</html>
+
